@@ -1,6 +1,6 @@
 <!-- eslint-disable no-unused-vars -->
 <template>
-  <main class="login">
+  <main class="login bg-black">
     <section class="forms">
       <form class="register" @submit.prevent="register">
         <h2>Register</h2>
