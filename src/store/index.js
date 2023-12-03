@@ -11,8 +11,32 @@ import {
 export default createStore({
   state: {
     user: null,
+    menu: [
+      {
+        id: 1,
+        name: "Torta",
+        price: 100,
+        description: "Torta de chocolate",
+        image: "https://picsum.photos/200/300",
+      },
+      {
+        id: 2,
+        name: "Refresco",
+        price: 40,
+        description: "Refresco de fresa",
+        image: "https://picsum.photos/200/300",
+      },
+    ],
+    total: 0,
   },
-  getters: {},
+  getters: {
+    menuList(state) {
+      return state.menu;
+    },
+    total(state) {
+      return state.total;
+    },
+  },
   mutations: {
     SET_USER(state, user) {
       state.user = user;
