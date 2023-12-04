@@ -137,7 +137,8 @@ module.exports = {
       white: '#FFFFFF',
       black: '#03071E',
       'accent': '#370617',
-      'red': '#9D0208'
+      'red': '#9D0208',
+      'yellow': '#FFBA08'
     }),
     columns: {
       auto: 'auto',
@@ -579,6 +580,7 @@ module.exports = {
       min: 'min-content',
       max: 'max-content',
       fit: 'fit-content',
+      '1/2': '50%',
     }),
     maxWidth: ({ theme, breakpoints }) => ({
       none: 'none',
