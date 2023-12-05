@@ -20,7 +20,8 @@
       <label v-if="label" :for="id" class="block text-sm font-medium text-secondary">{{ label }}</label>
       <fa :icon="['fas', 'asterisk']" v-if="required" class="ml-1 text-red" />
     </div>
-    <input      
+    <input
+      v-bind="$attrs"
       :type="type"
       :id="id"
       :value="modelValue"

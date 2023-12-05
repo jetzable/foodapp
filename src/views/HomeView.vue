@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen p-8 pb-32 overflow-scroll text-accent">
+  <div class="h-screen px-6 pt-8 pb-32 overflow-scroll text-accent">
     <section class="mb-8 border-2 rounded-lg shadow-lg border-primary">
       <h1 class="flex items-center justify-center">
         <img :src="require('../assets/JuanitasLunchLogo.png')"/>

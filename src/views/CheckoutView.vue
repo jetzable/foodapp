@@ -1,5 +1,18 @@
 <template>
-  <div class="relative w-full h-screen p-8 overflow-scroll text-accent">
+  <div v-if="orderItems.length === 0" class="flex items-center justify-center h-screen p-8 bg-primary">
+      <CardComponent class="flex flex-col items-center justify-center h-2/3">
+        <h1 class="mb-6 text-3xl font-bold text-center text-red">No items selected for your order.</h1>
+        <img class="object-cover object-center w-40 h-40 mb-4 rounded-full" src="../assets/empty-cart.jpg" />
+        <ButtonComponent
+          class="w-full"
+          type="button"
+          variant="secondary"
+          label="Back to Menu"
+          @click="$router.push({ name: 'home' })"
+        />
+      </CardComponent>
+    </div>
+  <div v-else class="relative w-full h-screen px-6 pt-8 overflow-scroll text-accent">
     <form>
       <h2 class="mb-4 text-xl text-primary">Deliver to:</h2>
       <InputComponent
@@ -30,7 +43,7 @@
         @update:modelValue="this.$store.commit('SET_ORDER_COMMENTS', $event)"
       />
     </form>
-    <ul class="pb-24 mt-6">
+    <ul class="mt-6 pb-36">
       <h1 class="flex items-center justify-between mb-4 text-xl">
         <span class="text-primary">Order Details</span>
         <span>{{ $filters.formatDate(Date.now()) }}</span>
