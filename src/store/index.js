@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { createStore } from "vuex";
 import router from "../router";
 import { auth } from "../firebase";
@@ -7,12 +6,64 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+import createPersistedState from "vuex-persistedstate";
+
+import { db } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export default createStore({
+  plugins: [createPersistedState({
+    storage: window.sessionStorage,
+  })],
   state: {
     user: null,
+    menu: [
+      {
+        id: 0,
+        name: "Torta",
+        price: 100,
+        description: "Torta de chocolate",
+        image: "https://picsum.photos/200/300",
+        quantity: 0
+      },
+      {
+        id: 1,
+        name: "Refresco",
+        price: 40,
+        description: "Refresco de fresa",
+        image: "https://picsum.photos/200/300",
+        quantity: 0
+      },
+      {
+        id: 2,
+        name: "Café",
+        price: 30,
+        description: "Café americano",
+        image: "https://picsum.photos/200/300",
+        quantity: 0
+      },
+    ],
+    order: {
+      buyersName: "",
+      buyersPhone: "",
+      items: [],
+      total: 0,
+      comments: "",
+      date: Date.now(),
+    },
+    orderId: null,
   },
-  getters: {},
+  getters: {
+    menuItems(state) {
+      return state.menu;
+    },
+    total(state) {
+      return state.order.total;
+    },
+    orderItems(state) {
+      return state.menu.filter((item) => item.quantity > 0);
+    },
+  },
   mutations: {
     SET_USER(state, user) {
       state.user = user;
@@ -20,8 +71,70 @@ export default createStore({
     CLEAR_USER(state) {
       state.user = null;
     },
+    ADD_ITEM(state, item) {
+      state.menu[item.id].quantity = item.quantity + 1;
+      state.order.total += item.price;
+    },
+    UPDATE_ITEM_PLUS(state, item) {
+      state.menu[item.id].quantity = item.quantity + 1;
+      state.order.total += item.price;
+    },
+    UPDATE_ITEM_MINUS(state, item) {
+      state.menu[item.id].quantity = item.quantity - 1;
+      state.order.total -= item.price;
+    },
+    DELETE_ITEM(state, item) {
+      state.order.total -= item.price * item.quantity;
+      state.menu[item.id].quantity = 0;
+    },
+    ADD_COMMENTS(state, comments) {
+      state.order.comments = comments;
+    },
+    UPDATE_QUANTITY(state, { id, quantity }) {
+      state.menu[id].quantity = quantity;
+      state.order.total = state.menu.reduce((total, item) => {
+        return total + item.price * item.quantity;
+      }, 0);
+    },
+    CLEAR_ORDER(state) {
+      state.order = {
+        buyersName: "",
+        buyersPhone: "",
+        items: [],
+        total: 0,
+        comments: "",
+        date: Date.now(),
+      };
+    },
+    SET_BUYER_NAME(state, name) {
+      state.order.buyersName = name;
+    },
+    SET_BUYER_PHONE(state, phone) {
+      state.order.buyersPhone = phone;
+    },
+    SET_ORDER_COMMENTS(state, comments) {
+      state.order.comments = comments;
+    },
+    SET_ORDER_ID(state, orderId) {
+      state.orderId = orderId;
+    }
   },
   actions: {
+    async confirmOrder({ state, commit }) {
+      const order = state.order;
+      order.items = state.menu.filter((item) => item.quantity > 0).map((item) => {
+        return {
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+        };
+      });
+      const docRef = await addDoc(collection(db, "orders"), order);
+      state.orderId = docRef.id;
+      commit("CLEAR_ORDER");
+      state.menu = state.menu.map((item) => ({ ...item, quantity: 0 }));
+      return
+    },
     async register({ commit }, details) {
       const { email, password } = details;
       try {
@@ -52,7 +165,7 @@ export default createStore({
         }
       }
     },
-    async login({ commit, state }, details) {
+    async login({ commit }, details) {
       const { email, password } = details;
       try {
         await signInWithEmailAndPassword(auth, email, password);
