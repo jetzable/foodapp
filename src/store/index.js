@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import router from "../router";
 import { auth } from "../firebase";
+import moment from "moment";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -9,7 +10,7 @@ import {
 import createPersistedState from "vuex-persistedstate";
 
 import { db } from '../firebase';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query } from 'firebase/firestore';
 
 export default createStore({
   plugins: [createPersistedState({
@@ -65,7 +66,10 @@ export default createStore({
       return state.menu.filter((item) => item.quantity > 0);
     },
     orders(state) {
-      return state.orders;
+      const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
+      return state.orders.filter((order) => {
+        return moment(order.date).format("YYYY-MM-DD") === yesterday;
+      });
     }
   },
   mutations: {
@@ -201,7 +205,8 @@ export default createStore({
     },
     async getOrders({ commit }) {
       const orders = [];
-      const querySnapshot = await getDocs(collection(db, "orders"));
+      const q = query(collection(db, "orders"));
+      const querySnapshot = await getDocs(q);
       querySnapshot
         .forEach((doc) => {
           orders.push({ id: doc.id, ...doc.data() });
