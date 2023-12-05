@@ -1,7 +1,7 @@
 <template>
   <div class="relative w-full h-screen p-8 overflow-scroll text-accent">
-    <form class="pb-4">
-      <h2 class="my-4 text-xl text-primary">Deliver to:</h2>
+    <form>
+      <h2 class="mb-4 text-xl text-primary">Deliver to:</h2>
       <InputComponent
         id="order-buyers-name"
         v-model="order.buyersName"
@@ -30,8 +30,11 @@
         @update:modelValue="this.$store.commit('SET_ORDER_COMMENTS', $event)"
       />
     </form>
-    <ul class="pb-24">
-      <h1 class="mb-4 text-xl text-primary">Order Details</h1>
+    <ul class="pb-24 mt-6">
+      <h1 class="flex items-center justify-between mb-4 text-xl">
+        <span class="text-primary">Order Details</span>
+        <span>{{ $filters.formatDate(Date.now()) }}</span>
+      </h1>
       <li
         v-for="item in orderItems"
         :key="item.id"
