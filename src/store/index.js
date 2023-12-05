@@ -9,7 +9,7 @@ import {
 import createPersistedState from "vuex-persistedstate";
 
 import { db } from '../firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
 
 export default createStore({
   plugins: [createPersistedState({
@@ -52,6 +52,7 @@ export default createStore({
       date: Date.now(),
     },
     orderId: null,
+    orders: [],
   },
   getters: {
     menuItems(state) {
@@ -63,6 +64,9 @@ export default createStore({
     orderItems(state) {
       return state.menu.filter((item) => item.quantity > 0);
     },
+    orders(state) {
+      return state.orders;
+    }
   },
   mutations: {
     SET_USER(state, user) {
@@ -117,7 +121,10 @@ export default createStore({
     },
     SET_ORDER_ID(state, orderId) {
       state.orderId = orderId;
-    }
+    },
+    SET_ORDERS(state, orders) {
+      state.orders = orders;
+    },
   },
   actions: {
     async confirmOrder({ state, commit }) {
@@ -170,7 +177,7 @@ export default createStore({
       try {
         await signInWithEmailAndPassword(auth, email, password);
         commit("SET_USER", auth.user);
-        router.push({ name: "home" });
+        router.push({ name: "orders" });
       } catch (error) {
         switch (error.code) {
           case "auth/invalid-email":
@@ -191,6 +198,16 @@ export default createStore({
         }
         return;
       }
+    },
+    async getOrders({ commit }) {
+      const orders = [];
+      const querySnapshot = await getDocs(collection(db, "orders"));
+      querySnapshot
+        .forEach((doc) => {
+          orders.push({ id: doc.id, ...doc.data() });
+        });
+      commit("SET_ORDERS", orders);
+      return;
     },
     async logout({ commit }) {
       try {
