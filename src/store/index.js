@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { createStore } from "vuex";
 import router from "../router";
 import { auth } from "../firebase";
@@ -7,8 +6,15 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+import createPersistedState from "vuex-persistedstate";
+
+import { db } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export default createStore({
+  plugins: [createPersistedState({
+    storage: window.sessionStorage,
+  })],
   state: {
     user: null,
     menu: [
@@ -40,11 +46,12 @@ export default createStore({
     order: {
       buyersName: "",
       buyersPhone: "",
-      buyersEmail: "",
       items: [],
       total: 0,
       comments: "",
+      date: Date.now(),
     },
+    orderId: null,
   },
   getters: {
     menuItems(state) {
@@ -83,14 +90,20 @@ export default createStore({
     ADD_COMMENTS(state, comments) {
       state.order.comments = comments;
     },
+    UPDATE_QUANTITY(state, { id, quantity }) {
+      state.menu[id].quantity = quantity;
+      state.order.total = state.menu.reduce((total, item) => {
+        return total + item.price * item.quantity;
+      }, 0);
+    },
     CLEAR_ORDER(state) {
       state.order = {
         buyersName: "",
         buyersPhone: "",
-        buyersEmail: "",
         items: [],
         total: 0,
         comments: "",
+        date: Date.now(),
       };
     },
     SET_BUYER_NAME(state, name) {
@@ -99,11 +112,29 @@ export default createStore({
     SET_BUYER_PHONE(state, phone) {
       state.order.buyersPhone = phone;
     },
-    SET_BUYER_EMAIL(state, email) {
-      state.order.buyersEmail = email;
+    SET_ORDER_COMMENTS(state, comments) {
+      state.order.comments = comments;
     },
+    SET_ORDER_ID(state, orderId) {
+      state.orderId = orderId;
+    }
   },
   actions: {
+    async confirmOrder({ state, commit }) {
+      const order = state.order;
+      order.items = state.menu.filter((item) => item.quantity > 0).map((item) => {
+        return {
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+        };
+      });
+      const docRef = await addDoc(collection(db, "orders"), order);
+      state.orderId = docRef.id;
+      commit("CLEAR_ORDER");
+      state.menu = state.menu.map((item) => ({ ...item, quantity: 0 }));
+      return
+    },
     async register({ commit }, details) {
       const { email, password } = details;
       try {
@@ -134,7 +165,7 @@ export default createStore({
         }
       }
     },
-    async login({ commit, state }, details) {
+    async login({ commit }, details) {
       const { email, password } = details;
       try {
         await signInWithEmailAndPassword(auth, email, password);

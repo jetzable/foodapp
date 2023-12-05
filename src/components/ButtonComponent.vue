@@ -5,7 +5,7 @@
     :type="type"
     :class="buttonClasses"
     :disabled="disabled"
-    @click="handleClick"
+    v-bind="$attrs" 
   >
     {{ label }}
   </button>

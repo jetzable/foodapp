@@ -9,6 +9,7 @@
         label="Name"
         type="text"
         required
+        @update:modelValue="this.$store.commit('SET_BUYER_NAME', $event)"
       />
       <InputComponent
         id="order-buyers-phone"
@@ -17,6 +18,7 @@
         label="Phone"
         type="tel"
         required
+        @update:modelValue="this.$store.commit('SET_BUYER_PHONE', $event)"
       />
       <InputComponent
         textArea
@@ -25,6 +27,7 @@
         placeholder="No onions please! I'm allergic. Thanks!..."
         label="Additional comments"
         type="text"
+        @update:modelValue="this.$store.commit('SET_ORDER_COMMENTS', $event)"
       />
     </form>
     <ul class="pb-24">
@@ -72,14 +75,19 @@
   import ButtonComponent from '@/components/ButtonComponent.vue';
 
   export default {
+    name: 'CheckoutView',
     computed: {
       ...mapState(['order']),
       ...mapGetters(['orderItems']),
     },
     methods: {
-      confirmOrder() {
-        this.$router.push({ name: 'orderconfirmation' });
-        // this.$store.dispatch('CONFIRM_ORDER');
+      async confirmOrder() {
+        try {
+          await this.$store.dispatch('confirmOrder');
+          this.$router.push({ name: 'orderconfirmation' });
+        } catch (error) {
+          console.log(error);
+        }
       },
     },
     components: {

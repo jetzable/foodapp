@@ -31,6 +31,7 @@
               type="number"
               label="Quantity"
               placeholder="0"
+              @update:modelValue="updateQuantity(item.id, $event)"
             />
             <div class="flex items-center" :class="{'justify-end': item.quantity === 0}">
               <IconButton
@@ -102,7 +103,7 @@
         this.$store.commit('DELETE_ITEM', item);
       },
       updateQuantity(id, quantity) {
-        this.$store.commit('updateQuantity', { id, quantity });
+        this.$store.commit('UPDATE_QUANTITY', { id, quantity });
       },
       checkout() {
         this.$router.push('/checkout');
