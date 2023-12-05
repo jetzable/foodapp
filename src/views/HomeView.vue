@@ -71,6 +71,7 @@
           variant="secondary"
           @click="checkout"
           label="Checkout"
+          :disabled="total === 0"
         />
       </div>
     </section>
