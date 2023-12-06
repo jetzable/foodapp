@@ -237,5 +237,7 @@ export default createStore({
       });
     },
   },
-  modules: {},
+  modules: {
+    auth
+  },
 });

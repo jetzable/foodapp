@@ -42,16 +42,16 @@ router.beforeEach((to, from, next) => {
     if(requiresAuth){
       auth.onAuthStateChanged(function(user) {
         if (user) {
-          console.log("Logged in", user) 
           next();
         } else {
-          console.log("Here", user) //this logs user = null on refresh 
           next('/login')
         }
       });
     } else {
       next();
     }
+  } else {
+    next();
   }
 })
 
