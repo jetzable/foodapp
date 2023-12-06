@@ -1,19 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { auth } from '../firebase'
 
 const routes = [
   {
     path: '/',
     name: 'home',
     component: HomeView,
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   },
   {
     path: '/checkout',
@@ -29,6 +22,12 @@ const routes = [
     path: '/login',
     name: 'login',
     component: () => import('../views/LoginView.vue')
+  },
+  {
+    path: '/orders',
+    name: 'orders',
+    component: () => import('../views/OrdersView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
@@ -37,19 +36,24 @@ const router = createRouter({
   routes
 })
 
-// router.beforeEach((to, from, next) => {
-//   if(to.path === '/login' && auth.currentUser) {
-//     next({ name: 'home' })
-//   }
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  if(to["path"] !== from["path"]){
+    if(requiresAuth){
+      auth.onAuthStateChanged(function(user) {
+        if (user) {
+          next();
+        } else {
+          next('/login')
+        }
+      });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+})
 
-//   if(to.matched.some(record => record.meta.requiresAuth) && !auth.currentUser) {
-//     next({ name: 'login' })
-//   }
-
-//   else {
-//     next()
-//   }
-
-// })
 
 export default router

@@ -4,8 +4,8 @@ import { initializeApp } from "firebase/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Auth
-import { getAuth } from "firebase/auth";
-
+import { getAuth, browserLocalPersistence, setPersistence } from "firebase/auth";
+// Firestore
 import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -22,7 +22,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
-
+setPersistence(auth, browserLocalPersistence)
 
 export const db = getFirestore(app);
 export { auth };

@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import router from "../router";
 import { auth } from "../firebase";
+import moment from "moment";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -9,7 +10,7 @@ import {
 import createPersistedState from "vuex-persistedstate";
 
 import { db } from '../firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, doc, updateDoc } from 'firebase/firestore';
 
 export default createStore({
   plugins: [createPersistedState({
@@ -50,8 +51,10 @@ export default createStore({
       total: 0,
       comments: "",
       date: Date.now(),
+      delivered: false,
     },
     orderId: null,
+    orders: [],
   },
   getters: {
     menuItems(state) {
@@ -63,6 +66,12 @@ export default createStore({
     orderItems(state) {
       return state.menu.filter((item) => item.quantity > 0);
     },
+    orders(state) {
+      const yesterday = moment().format("YYYY-MM-DD");
+      return state.orders.filter((order) => {
+        return moment(order.date).format("YYYY-MM-DD") === yesterday;
+      });
+    }
   },
   mutations: {
     SET_USER(state, user) {
@@ -117,7 +126,10 @@ export default createStore({
     },
     SET_ORDER_ID(state, orderId) {
       state.orderId = orderId;
-    }
+    },
+    SET_ORDERS(state, orders) {
+      state.orders = orders;
+    },
   },
   actions: {
     async confirmOrder({ state, commit }) {
@@ -170,7 +182,7 @@ export default createStore({
       try {
         await signInWithEmailAndPassword(auth, email, password);
         commit("SET_USER", auth.user);
-        router.push({ name: "home" });
+        router.push({ name: "orders" });
       } catch (error) {
         switch (error.code) {
           case "auth/invalid-email":
@@ -192,6 +204,17 @@ export default createStore({
         return;
       }
     },
+    async getOrders({ commit }) {
+      const orders = [];
+      const q = query(collection(db, "orders"));
+      const querySnapshot = await getDocs(q);
+      querySnapshot
+        .forEach((doc) => {
+          orders.push({ id: doc.id, ...doc.data() });
+        });
+      commit("SET_ORDERS", orders);
+      return;
+    },
     async logout({ commit }) {
       try {
         await signOut(auth);
@@ -201,6 +224,18 @@ export default createStore({
         alert("Unknown error.");
       }
       //
+    },
+    // eslint-disable-next-line no-unused-vars
+    async updateDelivery({ commit, dispatch, state }, orderId) {
+      try {
+        const ordersRef = doc(db, "orders", orderId);
+        await updateDoc(ordersRef, {
+          delivered: !state.orders.find((order) => order.id === orderId).delivered ,
+        });
+        this.dispatch("getOrders");
+      } catch (error) {
+        console.log(error);
+      }
     },
     fetchUser({ commit }) {
       auth.onAuthStateChanged(async (user) => {
@@ -215,5 +250,7 @@ export default createStore({
       });
     },
   },
-  modules: {},
+  modules: {
+    auth
+  },
 });
