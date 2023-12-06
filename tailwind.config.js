@@ -138,7 +138,9 @@ module.exports = {
       black: '#03071E',
       'accent': '#370617',
       'red': '#9D0208',
-      'yellow': '#FFBA08'
+      'yellow': '#FFBA08',
+      'orange': '#FF934F',
+      'green': '#A2FAA3'
     }),
     columns: {
       auto: 'auto',
