@@ -5,12 +5,13 @@
     <ul class="mt-4">
       <li v-for="order in orders" :key="order.id">
         <CardComponent
-          class="mb-4 border-b-2 "
+          class="mb-4 border-b-2 cursor-pointer hover:opacity-50"
           :class="{
             'bg-green text-white border-green': order.delivered,
             'bg-white border-primary': !order.delivered,
           }"
           noShadow
+          @click="updateDelivery(order.id)"
           >
           <section class="grid grid-cols-6 mb-4">
             <div class="col-span-4">
@@ -19,16 +20,14 @@
             </div>
             <div class="flex justify-end col-span-2">
               <p class="text-accent">
-                <button class="bg-transparent outline-none" @click="updateDelivery(order.id)">
-                  <fa
-                    class="w-6 h-6 mr-2"
-                    :icon="['fas', 'circle-check']"
-                    :class="{
-                      'text-primary': order.delivered,
-                      'text-accent': !order.delivered,
-                    }"
-                    />
-                </button>
+                <fa
+                  class="w-6 h-6 mr-2"
+                  :icon="['fas', 'circle-check']"
+                  :class="{
+                    'text-primary': order.delivered,
+                    'text-accent': !order.delivered,
+                  }"
+                  />
               </p>
             </div>
           </section>
