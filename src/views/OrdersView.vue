@@ -2,7 +2,7 @@
   <div class="h-screen px-6 py-8">
     <h1 class="mb-2 text-2xl text-primary">Today's Orders</h1>
     <p class="pb-2 border-b text-accent border-primary">{{ today }}</p>
-    <ul class="mt-4">
+    <TransitionGroup name="flip-list" tag="ul" class="py-4 mb-4">
       <li v-for="order in orders" :key="order.id">
         <CardComponent
           class="mb-4 border-b-2 cursor-pointer hover:opacity-50"
@@ -44,7 +44,7 @@
           </ul>
         </CardComponent>
       </li>
-    </ul>
+    </TransitionGroup>
   </div>
 </template>
 

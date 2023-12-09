@@ -67,7 +67,7 @@ export default createStore({
       return state.menu.filter((item) => item.quantity > 0);
     },
     orders(state) {
-      const yesterday = moment().format("YYYY-MM-DD");
+      const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
       return state.orders.filter((order) => {
         return moment(order.date).format("YYYY-MM-DD") === yesterday;
       });
