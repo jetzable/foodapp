@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 rounded-lg" :class="classes">
+  <div class="rounded-lg" :class="classes">
     <slot></slot>
   </div>
 </template>
@@ -12,6 +12,7 @@ export default {
         'shadow-xl': !this.noShadow,
         'bg-white': !this.primary,
         'bg-primary': this.primary,
+        'p-4': !this.noPadding
       };
     },
   },
@@ -21,6 +22,10 @@ export default {
       default: false,
     },
     primary: {
+      type: Boolean,
+      default: false,
+    },
+    noPadding: {
       type: Boolean,
       default: false,
     },

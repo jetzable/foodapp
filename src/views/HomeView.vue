@@ -1,8 +1,8 @@
 <template>
   <div class="h-screen px-6 pt-8 pb-32 overflow-scroll text-accent">
     <section class="mb-8 border-2 rounded-lg shadow-lg border-primary">
-      <h1 class="flex items-center justify-center">
-        <img :src="require('../assets/JuanitasLunchLogo.png')"/>
+      <h1 class="flex items-center justify-center h-36">
+        <img :src="require('../assets/JuanitasLunchLogo.png')" class="rounded-t-lg h-36"/>
       </h1>
       <p class="p-2 text-lg text-center text-white bg-primary">We are a family owned and operated business. Come in and enjoy our delicious food!</p>
     </section>
@@ -12,53 +12,58 @@
         >
         Menu
       </h2>
-      <TransitionGroup name="list" tag="ul" class="flex flex-wrap">
+      <TransitionGroup name="list" tag="ul">
         <li
           v-for="item in menuItems"
           :key="item.id"
-          class="w-full p-4 border-b border-dashed md:w-1/2 lg:w-1/3 border-primary"
+          class="w-full border-b border-dashed md:w-1/2 lg:w-1/3 border-primary"
         >
-        <CardComponent class="grid grid-cols-12" noShadow>
-          <div class="col-span-8">
-            <h3 class="mb-2 text-xl font-bold">{{ item.name }}</h3>
-            <p class="mb-2 text-lg">{{ item.description }}</p>
-            <p class="mb-2 text-lg font-bold">${{ item.price }}</p>
-          </div>
-          <div class="flex flex-col justify-center col-span-4">
-            <InputComponent
-              :id="item.id"
-              :modelValue="item.quantity"
-              type="number"
-              label="Quantity"
-              placeholder="0"
-              @update:modelValue="updateQuantity(item.id, $event)"
-            />
-            <div class="flex items-center" :class="{'justify-end': item.quantity === 0}">
-              <IconButton
-                v-if="item.quantity > 0"
-                class="w-1/2 mr-2"
-                variant="primary"
-                @click="deleteItem(item)"
-              >
-                <fa icon="trash-can" />
-              </IconButton>
-              <IconButton
-                v-if="item.quantity > 0"
-                class="w-1/2 mr-2"
-                variant="primary"
-                @click="removeFromCart(item)"
-              >
-                <fa icon="minus" />
-              </IconButton>
-              <IconButton
-                class="w-1/2"
-                variant="primary"
-                @click="addToCart(item)"
-              >
-                <fa icon="plus" />
-              </IconButton>
+        <CardComponent class="grid-cols-12 gap-4 my-4 md:grid 2xs:flex" noShadow noPadding>
+          <section class="md:col-span-4 2xs:mb-2">
+            <img :src="item.image" class="object-cover object-center h-32 rounded-full aspect-square"/>
+          </section>
+          <section class="col-span-8">
+            <div>
+              <h3 class="mb-2 text-xl font-bold">{{ item.name }}</h3>
+              <p class="mb-2 text-md">{{ item.description }}</p>
+              <p class="mb-2 font-bold text-md">${{ item.price }}</p>
             </div>
-          </div>
+            <div class="flex flex-col justify-center">
+              <InputComponent
+                :id="item.id"
+                :modelValue="item.quantity"
+                type="number"
+                label="Quantity"
+                placeholder="0"
+                @update:modelValue="updateQuantity(item.id, $event)"
+              />
+              <div class="flex items-center" :class="{'justify-end': item.quantity === 0}">
+                <IconButton
+                  v-if="item.quantity > 0"
+                  class="w-1/2 h-10 mr-2"
+                  variant="primary"
+                  @click="deleteItem(item)"
+                >
+                  <fa icon="trash-can" />
+                </IconButton>
+                <IconButton
+                  v-if="item.quantity > 0"
+                  class="w-1/2 h-10 mr-2"
+                  variant="primary"
+                  @click="removeFromCart(item)"
+                >
+                  <fa icon="minus" />
+                </IconButton>
+                <IconButton
+                  class="w-1/2 h-10"
+                  variant="primary"
+                  @click="addToCart(item)"
+                >
+                  <fa icon="plus" />
+                </IconButton>
+              </div>
+            </div>
+          </section>
         </CardComponent>
         </li>
       </TransitionGroup>
