@@ -28,6 +28,18 @@ const routes = [
     name: 'orders',
     component: () => import('../views/OrdersView.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/menu',
+    name: 'menu',
+    component: () => import('../views/MenuView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/menu-builder',
+    name: 'menu-builder',
+    component: () => import('../views/MenuBuilderView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

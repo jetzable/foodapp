@@ -91,8 +91,12 @@
   import CardComponent from '@/components/CardComponent.vue';
 
   export default {
+    name: 'HomeView',
+    created() {
+      this.$store.dispatch('getMenuItems');
+    },
     computed: {
-      ...mapGetters(['total', 'menuItems']),
+      ...mapGetters(['total', 'menuItems', 'menu']),
     },
     methods: {
       addToCart(item) {

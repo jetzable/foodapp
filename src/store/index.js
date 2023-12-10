@@ -18,32 +18,7 @@ export default createStore({
   })],
   state: {
     user: null,
-    menu: [
-      {
-        id: 0,
-        name: "Torta",
-        price: 100,
-        description: "Torta de chocolate",
-        image: "https://picsum.photos/200/300",
-        quantity: 0
-      },
-      {
-        id: 1,
-        name: "Refresco",
-        price: 40,
-        description: "Refresco de fresa",
-        image: "https://picsum.photos/200/300",
-        quantity: 0
-      },
-      {
-        id: 2,
-        name: "Café",
-        price: 30,
-        description: "Café americano",
-        image: "https://picsum.photos/200/300",
-        quantity: 0
-      },
-    ],
+    menu: [],
     order: {
       buyersName: "",
       buyersPhone: "",
@@ -67,10 +42,14 @@ export default createStore({
       return state.menu.filter((item) => item.quantity > 0);
     },
     orders(state) {
-      const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
-      return state.orders.filter((order) => {
-        return moment(order.date).format("YYYY-MM-DD") === yesterday;
-      });
+      // const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
+      return state.orders
+      // .filter((order) => {
+      //   return moment(order.date).format("YYYY-MM-DD") === yesterday;
+      // });
+    },
+    menu(state) {
+      return state.menu;
     }
   },
   mutations: {
@@ -81,26 +60,31 @@ export default createStore({
       state.user = null;
     },
     ADD_ITEM(state, item) {
-      state.menu[item.id].quantity = item.quantity + 1;
+      const index = state.menu.findIndex((i) => i.id === item.id);
+      state.menu[index].quantity = item.quantity + 1;
       state.order.total += item.price;
     },
     UPDATE_ITEM_PLUS(state, item) {
-      state.menu[item.id].quantity = item.quantity + 1;
+      const index = state.menu.findIndex((i) => i.id === item.id);
+      state.menu[index].quantity = item.quantity + 1;
       state.order.total += item.price;
     },
     UPDATE_ITEM_MINUS(state, item) {
-      state.menu[item.id].quantity = item.quantity - 1;
+      const index = state.menu.findIndex((i) => i.id === item.id);
+      state.menu[index].quantity = item.quantity - 1;
       state.order.total -= item.price;
     },
     DELETE_ITEM(state, item) {
+      const index = state.menu.findIndex((i) => i.id === item.id);
       state.order.total -= item.price * item.quantity;
-      state.menu[item.id].quantity = 0;
+      state.menu[index].quantity = 0;
     },
     ADD_COMMENTS(state, comments) {
       state.order.comments = comments;
     },
     UPDATE_QUANTITY(state, { id, quantity }) {
-      state.menu[id].quantity = quantity;
+      const index = state.menu.findIndex((i) => i.id === id);
+      state.menu[index].quantity = quantity;
       state.order.total = state.menu.reduce((total, item) => {
         return total + item.price * item.quantity;
       }, 0);
@@ -130,8 +114,25 @@ export default createStore({
     SET_ORDERS(state, orders) {
       state.orders = orders;
     },
+    SET_MENU(state, menu) {
+      state.menu = menu;
+    },
   },
   actions: {
+    async getMenuItems({ commit }) {
+      const menu = [];
+      const q = query(collection(db, "menu"));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        if (doc.exists()) {
+          if (doc.data().active) {
+            menu.push({ id: doc.id, ...doc.data(), quantity: 0 });
+          }
+        }
+      });
+      commit("SET_MENU", menu);
+      return;
+    },
     async confirmOrder({ state, commit }) {
       const order = state.order;
       order.items = state.menu.filter((item) => item.quantity > 0).map((item) => {
@@ -206,11 +207,15 @@ export default createStore({
     },
     async getOrders({ commit }) {
       const orders = [];
+      const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
       const q = query(collection(db, "orders"));
       const querySnapshot = await getDocs(q);
       querySnapshot
         .forEach((doc) => {
-          orders.push({ id: doc.id, ...doc.data() });
+          if (doc.exists() &&
+            moment(doc.data().date).format("YYYY-MM-DD") === yesterday) {
+            orders.push({ id: doc.id, ...doc.data() });
+          }
         });
       commit("SET_ORDERS", orders);
       return;
@@ -237,6 +242,26 @@ export default createStore({
         console.log(error);
       }
     },
+    // eslint-disable-next-line no-unused-vars
+    async deleteMenuItem({ commit }, item) {
+      try {
+        const menuRef = doc(db, "menu", item.id);
+        await updateDoc(menuRef, {
+          active: false,
+        });
+        this.dispatch("getMenuItems");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    // eslint-disable-next-line no-unused-vars
+    async createNewMenuItem({ commit }, item) {
+      try {
+        await addDoc(collection(db, "menu"), item);
+      } catch (error) {
+        console.error("Error adding document: ", error);
+      }
+    },
     fetchUser({ commit }) {
       auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -254,3 +279,34 @@ export default createStore({
     auth
   },
 });
+
+
+// Menu example
+
+// [
+//   {
+//     id: 0,
+//     name: "Torta",
+//     price: 100,
+//     description: "Torta de chocolate",
+//     image: "https://picsum.photos/200/300",
+//     quantity: 0
+//     active: true
+//   },
+//   {
+//     id: 1,
+//     name: "Refresco",
+//     price: 40,
+//     description: "Refresco de fresa",
+//     image: "https://picsum.photos/200/300",
+//     quantity: 0
+//   },
+//   {
+//     id: 2,
+//     name: "Café",
+//     price: 30,
+//     description: "Café americano",
+//     image: "https://picsum.photos/200/300",
+//     quantity: 0
+//   },
+// ]
