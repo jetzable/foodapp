@@ -16,6 +16,7 @@
           <section class="grid grid-cols-6 mb-4">
             <div class="col-span-4">
               <h2 class="text-primary">{{ order.buyersName }}</h2>
+              <p class="text-accent">{{ formatedBuyersPhone(order.buyersPhone) }}</p>
               <p class="text-accent">{{ order.id }}</p>
             </div>
             <div class="flex justify-end col-span-2">
@@ -71,6 +72,9 @@ export default {
   methods: {
     updateDelivery(id) {
       this.$store.dispatch("updateDelivery", id);
+    },
+    formatedBuyersPhone(phone) {
+      return phone.replace(/(\d{2})(\d{4})(\d{4})/, "$1-$2-$3");
     },
   },
 };

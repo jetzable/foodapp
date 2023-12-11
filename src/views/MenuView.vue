@@ -1,11 +1,11 @@
 <template>
   <div class="relative h-screen px-6 py-8 overflow-y-scroll">
     <h1 class="mb-6 text-2xl text-secondary">Build your menu</h1>
-    <ul class="flex-grow mb-24">
-      <li v-for="item in menu" :key="item.id">
-        <CardComponent class="grid grid-cols-8 mb-4">
-          <div class="col-span-3">
-            <img :src="item.image" class="object-cover object-center h-32 rounded-full aspect-square"/> 
+    <ul class="flex-grow mb-24 md:grid md:grid-cols-9 md:gap-4 md:">
+      <li v-for="item in menu" :key="item.id" class="md:col-span-3">
+        <CardComponent class="grid grid-cols-8 mb-4 md:mb-0 md:h-64">
+          <div class="col-span-3 mr-2">
+            <img :src="item.image" class="object-cover object-center rounded-full h-28 md:h-24 aspect-square"/> 
           </div>
           <div class="col-span-5">
             <h3 class="mb-2 text-xl font-bold">{{ item.name }}</h3>

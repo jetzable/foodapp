@@ -211,7 +211,7 @@ export default createStore({
     },
     async getOrders({ commit }) {
       const orders = [];
-      const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
+      const yesterday = moment().subtract(3, "days").format("YYYY-MM-DD");
       const q = query(collection(db, "orders"));
       const querySnapshot = await getDocs(q);
       querySnapshot
