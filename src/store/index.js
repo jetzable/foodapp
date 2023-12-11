@@ -17,6 +17,7 @@ export default createStore({
     storage: window.sessionStorage,
   })],
   state: {
+    itemToUpdate: null,
     user: null,
     menu: [],
     order: {
@@ -117,6 +118,9 @@ export default createStore({
     SET_MENU(state, menu) {
       state.menu = menu;
     },
+    SET_ITEM_TO_UPDATE(state, item) {
+      state.itemToUpdate = item;
+    }
   },
   actions: {
     async getMenuItems({ commit }) {
@@ -260,6 +264,22 @@ export default createStore({
         await addDoc(collection(db, "menu"), item);
       } catch (error) {
         console.error("Error adding document: ", error);
+      }
+    },
+    async updateMenuItem({ state }) {
+      try {
+        const item = state.itemToUpdate;
+        const menuRef = doc(db, "menu", item.id);
+        await updateDoc(menuRef, {
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          image: item.image,
+          active: item.active,
+        });
+        router.push({ name: "menu" });
+      } catch (error) {
+        console.log(error);
       }
     },
     fetchUser({ commit }) {

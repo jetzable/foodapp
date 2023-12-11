@@ -23,7 +23,7 @@
             <IconButton
               class="h-10 mr-2 aspect-square"
               variant="primary"
-              @click="removeFromCart(item)"
+              @click="$store.commit('SET_ITEM_TO_UPDATE', item); $router.push({ name: 'edit' })"
             >
               <fa icon="pencil" />
             </IconButton>

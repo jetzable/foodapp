@@ -40,6 +40,12 @@ const routes = [
     name: 'menu-builder',
     component: () => import('../views/MenuBuilderView.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/edit',
+    name: 'edit',
+    component: () => import('../views/UpdateMenuItemView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
