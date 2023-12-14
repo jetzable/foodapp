@@ -10,21 +10,23 @@ import {
 import createPersistedState from "vuex-persistedstate";
 
 import { db } from '../firebase';
-import { collection, addDoc, getDocs, query, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs,
+  query, doc, updateDoc, getDoc } from 'firebase/firestore';
 
 export default createStore({
   plugins: [createPersistedState({
     storage: window.sessionStorage,
   })],
   state: {
+    orderDetail: null,
     itemToUpdate: null,
     user: null,
     menu: [],
+    total: 0,
     order: {
       buyersName: "",
       buyersPhone: "",
       items: [],
-      total: 0,
       comments: "",
       date: Date.now(),
       delivered: false,
@@ -37,21 +39,22 @@ export default createStore({
       return state.menu;
     },
     total(state) {
-      return state.order.total;
+      return state.menu.reduce((count, item) => {
+        return count + (item.price * item.quantity);
+      }, 0);
     },
     orderItems(state) {
       return state.menu.filter((item) => item.quantity > 0);
     },
     orders(state) {
-      // const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
       return state.orders
-      // .filter((order) => {
-      //   return moment(order.date).format("YYYY-MM-DD") === yesterday;
-      // });
     },
     menu(state) {
       return state.menu;
-    }
+    },
+    orderDetail(state) {
+      return state.orderDetail;
+    },
   },
   mutations: {
     SET_USER(state, user) {
@@ -63,42 +66,45 @@ export default createStore({
     ADD_ITEM(state, item) {
       const index = state.menu.findIndex((i) => i.id === item.id);
       state.menu[index].quantity = item.quantity + 1;
-      state.order.total += item.price;
+      state.total += item.price;
     },
     UPDATE_ITEM_PLUS(state, item) {
       const index = state.menu.findIndex((i) => i.id === item.id);
       state.menu[index].quantity = item.quantity + 1;
-      state.order.total += item.price;
+      state.total += item.price;
     },
     UPDATE_ITEM_MINUS(state, item) {
       const index = state.menu.findIndex((i) => i.id === item.id);
       state.menu[index].quantity = item.quantity - 1;
-      state.order.total -= item.price;
+      state.total -= item.price;
     },
     DELETE_ITEM(state, item) {
       const index = state.menu.findIndex((i) => i.id === item.id);
-      state.order.total -= item.price * item.quantity;
+      state.total -= item.price * item.quantity;
       state.menu[index].quantity = 0;
     },
     ADD_COMMENTS(state, comments) {
       state.order.comments = comments;
     },
-    UPDATE_QUANTITY(state, { id, quantity }) {
+    UPDATE_QUANTITY(state, {id, quantity}) {
       const index = state.menu.findIndex((i) => i.id === id);
       state.menu[index].quantity = quantity;
-      state.order.total = state.menu.reduce((total, item) => {
+      state.total = state.menu.reduce((total, item) => {
         return total + item.price * item.quantity;
       }, 0);
+    },
+    SET_ORDER_DETAIL(state, order) {
+      state.orderDetail = order;
     },
     CLEAR_ORDER(state) {
       state.order = {
         buyersName: "",
         buyersPhone: "",
         items: [],
-        total: 0,
         comments: "",
         date: Date.now(),
       };
+      state.total = 0;
     },
     SET_BUYER_NAME(state, name) {
       state.order.buyersName = name;
@@ -123,6 +129,15 @@ export default createStore({
     }
   },
   actions: {
+    async getOrderDetail({ commit }, orderId) {
+      const docRef = doc(db, "orders", orderId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        commit("SET_ORDER_DETAIL", docSnap.data());
+      } else {
+        console.log("No such document!");
+      }
+    },
     async getMenuItems({ commit }) {
       const menu = [];
       const q = query(collection(db, "menu"));

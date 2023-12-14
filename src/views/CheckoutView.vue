@@ -77,7 +77,7 @@
         <p class="flex items-center ml-8">
           <span class="font-semibold">Total:</span>
           <span class="ml-4 font-bold border-b-4 border-double text-primary border-primary">
-            ${{ order.total }}
+            ${{ total }}
           </span>
         </p>
     </div>
@@ -94,7 +94,7 @@
     name: 'CheckoutView',
     computed: {
       ...mapState(['order']),
-      ...mapGetters(['orderItems']),
+      ...mapGetters(['orderItems', 'total']),
     },
     methods: {
       async confirmOrder() {

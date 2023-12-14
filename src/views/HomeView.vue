@@ -18,29 +18,31 @@
           :key="item.id"
           class="w-full border-b border-dashed md:w-1/2 lg:w-1/3 border-primary"
         >
-        <CardComponent class="grid-cols-12 gap-4 my-4 md:grid 2xs:flex" noShadow noPadding>
-          <section class="md:col-span-4 2xs:mb-2">
-            <img :src="item.image" class="object-cover object-center h-32 rounded-full aspect-square"/>
+        <CardComponent class="flex my-4" noShadow noPadding>
+          <section class="w-1/3 mr-2">
+            <img :src="item.image" class="object-cover object-center rounded-full aspect-square"/> 
           </section>
-          <section class="col-span-8">
+          <section class="flex-grow w-2/3">
             <div>
               <h3 class="mb-2 text-xl font-bold">{{ item.name }}</h3>
               <p class="mb-2 text-md">{{ item.description }}</p>
               <p class="mb-2 font-bold text-md">${{ item.price }}</p>
             </div>
-            <div class="flex flex-col justify-center">
+            <div class="flex flex-col items-end">
               <InputComponent
                 :id="item.id"
                 :modelValue="item.quantity"
+                class="w-1/2"
                 type="number"
                 label="Quantity"
                 placeholder="0"
-                @update:modelValue="updateQuantity(item.id, $event)"
+                disabled
+                @update:modelValue="updateQuantity(item.id)"
               />
               <div class="flex items-center" :class="{'justify-end': item.quantity === 0}">
                 <IconButton
                   v-if="item.quantity > 0"
-                  class="w-1/2 h-10 mr-2"
+                  class="w-12 h-12 mr-2"
                   variant="primary"
                   @click="deleteItem(item)"
                 >
@@ -48,14 +50,14 @@
                 </IconButton>
                 <IconButton
                   v-if="item.quantity > 0"
-                  class="w-1/2 h-10 mr-2"
+                  class="w-12 h-12 mr-2"
                   variant="primary"
                   @click="removeFromCart(item)"
                 >
                   <fa icon="minus" />
                 </IconButton>
                 <IconButton
-                  class="w-1/2 h-10"
+                  class="w-12 h-12"
                   variant="primary"
                   @click="addToCart(item)"
                 >
@@ -112,8 +114,8 @@
       deleteItem(item) {
         this.$store.commit('DELETE_ITEM', item);
       },
-      updateQuantity(id, quantity) {
-        this.$store.commit('UPDATE_QUANTITY', { id, quantity });
+      updateQuantity(item) {
+        this.$store.commit('UPDATE_QUANTITY', item);
       },
       checkout() {
         this.$router.push('/checkout');
