@@ -86,12 +86,9 @@ export default createStore({
     ADD_COMMENTS(state, comments) {
       state.order.comments = comments;
     },
-    UPDATE_QUANTITY(state, {id, quantity}) {
-      const index = state.menu.findIndex((i) => i.id === id);
+    UPDATE_QUANTITY(state, { item, quantity}) {
+      const index = state.menu.findIndex((i) => i.id === item.id);
       state.menu[index].quantity = quantity;
-      state.total = state.menu.reduce((total, item) => {
-        return total + item.price * item.quantity;
-      }, 0);
     },
     SET_ORDER_DETAIL(state, order) {
       state.orderDetail = order;
